@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>07. 发送指令 - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d; --bg-color: #ffffff; --link-color: #0052cc;
+            --heading-color: #172b4d; --border-color: #dfe1e6;
+            --code-bg: #f4f5f7; --info-bg: #e9f2ff; --info-border: #0052cc; --max-width: 900px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px; line-height: 1.8; color: var(--text-color); background: var(--bg-color);
+        }
+        .static-header {
+            background: #f4f5f7; border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px; display: flex; align-items: center; gap: 16px; font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo { font-weight: 700; font-size: 16px; color: #172b4d; text-decoration: none; }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+        .main-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 64px; }
+        .page-meta {
+            color: #5e6c84; font-size: 14px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+        h1 {
+            font-size: 2em; font-weight: 600; margin: 24px 0 16px;
+            color: var(--heading-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;
+        }
+        h1:first-of-type { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+        .wiki-content {}
+        .wiki-content h1 {
+            font-size: 1.5em; margin: 32px 0 12px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+        }
+        .wiki-content p { margin: 12px 0; }
+        .code-block {
+            background: var(--code-bg); border: 1px solid var(--border-color);
+            border-radius: 4px; margin: 14px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            padding: 14px 18px;
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 13.5px; line-height: 1.6; color: #172b4d;
+            white-space: pre-wrap; word-break: break-word;
+        }
+        .info-box {
+            background: var(--info-bg); border: 1px solid var(--info-border);
+            border-left: 4px solid var(--info-border); border-radius: 4px;
+            padding: 14px 18px; margin: 16px 0; font-size: 15px;
+        }
+        .info-box p { margin: 4px 0; }
+        .image-wrapper { text-align: center; margin: 20px 0; }
+        .image-wrapper img {
+            max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+                /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== *//* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px; padding-top: 16px;
+            border-top: 1px solid var(--border-color); font-size: 14px; color: #5e6c84;
+        }
+        .static-footer {
+            max-width: var(--max-width); margin: 0 auto; padding: 20px 24px 40px;
+            text-align: center; font-size: 13px; color: #5e6c84; border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+            .code-block pre { font-size: 12px; padding: 10px 12px; }
+        }
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+        <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+    <main class="main-container">
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+        <h1>07. 发送指令</h1>
+        <div class="wiki-content">
+            <h1>一、请求包定义</h1>
+            <p>请求包定义为: </p>
+            <div class="info-box">
+                <p>指令个数（4byte）|指令1长度(4byte)|指令1内容|指令2长度(4byte)|指令2内容|...等等</p>
+                <p><br></p>
+                <p>譬如：</p>
+                <p>set key value 的请求包为</p>
+                <p>3|3|set|3|key|7|我是value</p>
+                <p>get key的请求包为</p>
+                <p>2|3|get|3|key</p>
+            </div>
+
+            <h1>&nbsp;</h1>
+            <div class="image-wrapper">
+                <img src="images/image-2024-7-20_14-22-33.png" alt="请求包结构示意图">
+            </div>
+
+            <h1>二、请求包组装</h1>
+            <p>代码为：</p>
+            <div class="code-block">
+<pre>static int32_t send_request(int fd, const *cmds[]) {
+    uint32_t len = 4;
+    char **cmd_pointer = cmds;
+    int cmd_size = 0;
+    while (*cmd_pointer) {
+        len += 4 + strlen(*cmd_pointer);
+        cmd_pointer++;
+        cmd_size++;
+    }
+
+    if (len &gt; MAX_MESSAGE_LEN) {
+        return -1;
+    }
+
+    // header 4 byte
+    char wbuf[4 + MAX_MESSAGE_LEN];
+    memcpy(&amp;wbuf[0], &amp;len, 4); // assume little endian
+    memcpy(&amp;wbuf[4], &amp;cmd_size, len);
+    size_t cur = 8;
+    cmd_pointer = cmds;
+    while (*cmd_pointer) {
+        uint32_t p = strlen(*cmd_pointer);
+        memcpy(&amp;wbuf[cur], &amp;p, 4);
+        memcpy(&amp;wbuf[cur + 4], *cmd_pointer, strlen(*cmd_pointer));
+        cur += 4 + strlen(*cmd_pointer);
+        cmd_pointer++;
+    }
+    int32_t err = write_message(fd, wbuf, 4 + len);
+    if (err) {
+        return err;
+    }
+}</pre>
+            </div>
+
+            <h1>三、请求包解析</h1>
+            <p>代码为：</p>
+            <div class="code-block">
+<pre>static int32_t parse_request(
+    const uint8_t *data, size_t len, char *cmds[]) {
+    if (len &lt; 4) {
+        return -1;
+    }
+    uint32_t n = 0;
+    memcpy(&amp;n, &amp;data[0], 4);
+    if (n &gt; MAX_MESSAGE_LEN) {
+        return -1;
+    }
+
+    size_t pos = 4;
+    uint32_t cmd_index = 0;
+    while (n--) {
+        if (pos + 4 &gt; len) {
+            return -1;
+        }
+        uint32_t sz = 0;
+        memcpy(&amp;sz, &amp;data[pos], 4);
+        if (pos + 4 + sz &gt; len) {
+            return -1;
+        }
+        cmds[cmd_index] = malloc(sz * sizeof(char));
+        memcpy(cmds[cmd_index], &amp;data[pos + 4], sz);
+        pos += 4 + sz;
+        cmd_index++;
+    }
+    return cmd_index;
+}</pre>
+            </div>
+        </div>
+        <div class="labels-section">标签：无</div>
+    </main>
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665168">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+    <script>var CURRENT_PAGE = '07-发送指令.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>

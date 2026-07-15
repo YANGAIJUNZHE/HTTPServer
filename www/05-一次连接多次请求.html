@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>05. 一次连接多次请求 - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d;
+            --bg-color: #ffffff;
+            --link-color: #0052cc;
+            --heading-color: #172b4d;
+            --border-color: #dfe1e6;
+            --code-bg: #f4f5f7;
+            --info-bg: #e9f2ff;
+            --info-border: #0052cc;
+            --max-width: 900px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        .static-header {
+            background: #f4f5f7; border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px; display: flex; align-items: center; gap: 16px; font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo { font-weight: 700; font-size: 16px; color: #172b4d; text-decoration: none; }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+
+        .main-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 64px; }
+
+        .page-meta {
+            color: #5e6c84; font-size: 14px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2em; font-weight: 600; margin: 24px 0 16px;
+            color: var(--heading-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;
+        }
+        h1:first-of-type { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+
+        .wiki-content {}
+        .wiki-content h2 {
+            font-size: 1.3em; margin: 28px 0 10px; color: var(--heading-color);
+            border-bottom: 1px solid var(--border-color); padding-bottom: 6px;
+        }
+        .wiki-content p { margin: 12px 0; }
+        .wiki-content strong { color: #172b4d; }
+
+        /* 代码块 */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin: 14px 0;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            padding: 14px 18px;
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: #172b4d;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* 信息框 */
+        .info-box {
+            background: var(--info-bg);
+            border: 1px solid var(--info-border);
+            border-left: 4px solid var(--info-border);
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            font-size: 15px;
+        }
+        .info-box pre {
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        /* 图片 */
+        .image-wrapper { text-align: center; margin: 20px 0; }
+        .image-wrapper img {
+            max-width: 100%; height: auto;
+            border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+                /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== *//* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px; padding-top: 16px;
+            border-top: 1px solid var(--border-color); font-size: 14px; color: #5e6c84;
+        }
+
+        .static-footer {
+            max-width: var(--max-width); margin: 0 auto; padding: 20px 24px 40px;
+            text-align: center; font-size: 13px; color: #5e6c84;
+            border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+            .code-block pre { font-size: 12px; padding: 10px 12px; }
+        }
+
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+        <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+
+    <main class="main-container">
+
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+
+        <h1>05. 一次连接多次请求</h1>
+
+        <div class="wiki-content">
+
+            <h2>一、通信协议定义</h2>
+
+            <p>我们的服务器将能够处理来自客户端的多个请求，因此我们需要实现一种"协议"，以至少将请求从TCP字节流中分开。最简单的方法是在请求的开头声明请求的长度。让我们采用以下方案。</p>
+
+            <div class="info-box">
+<pre>消息1长度|消息1|消息2长度|消息2|等等...
+
+该协议由两部分组成：一个4字节的整数，表示请求的长度，以及可变长度的请求内容。</pre>
+            </div>
+
+            <h2>&nbsp;</h2>
+
+            <div class="image-wrapper">
+                <img src="images/image-2024-7-20_10-52-55.png" alt="协议示意图">
+            </div>
+
+            <h2>二、修改服务端连接</h2>
+
+            <p>然后修改代码如下，一次连接可以处理多个请求</p>
+
+            <div class="code-block">
+<pre>while (true) {
+    // accept
+    struct sockaddr_in client_addr = {};
+    socklen_t addrlen = sizeof(client_addr);
+    int connfd = accept(fd, (struct sockaddr *) &amp;client_addr, &amp;addrlen);
+    if (connfd &lt; 0) {
+        continue; // error
+    }
+
+    while (true) {
+        int32_t err = process_on_request(connfd);
+        if (err) {
+            break;
+        }
+    }
+
+    close(connfd);
+}</pre>
+            </div>
+
+            <p><code>process_on_request</code>函数只解析并响应一个请求，直到发生错误或客户端连接丢失。我们的服务器一次只能处理一个连接，之后我们会改进这个程序支持多个客户端连接。</p>
+
+            <h2>三、建立IO工具方法</h2>
+
+            <p>这里我们建立两个工具方法，在后面的process_on_request中使用</p>
+
+            <div class="code-block">
+<pre>#include "common.h"
+
+/**
+* 读取连接（fd）中的最多n byte数据，并存入buf中
+ * @return 返回0，成功，-1失败
+* 通过多次读取，最多读取n bytes的数据
+ */
+int32_t read_message(int fd, char *buf, size_t n) {
+    while (n &gt; 0) {
+        ssize_t n_bytes_read = read(fd, buf, n);
+        if (n_bytes_read &lt;= 0) {
+            // 两种情况会退出循环，1）读到末尾了 2）客户端关闭，网络错误
+            return -1;  // error, or unexpected EOF
+        }
+        n -= (size_t)n_bytes_read;
+        buf += n_bytes_read;
+    }
+    return 0;
+}
+
+/**
+ * 向连接fd写入n byte buffer中的数据
+ * @return 返回0，成功，-1失败
+ */
+int write_message(int fd, const char *buf, size_t n) {
+    while (n &gt; 0) {
+        ssize_t n_bytes_write = write(fd, buf, n);
+        if (n_bytes_write &lt;= 0) {
+            return -1;  // error
+        }
+        n -= (size_t)n_bytes_write;
+        buf += n_bytes_write;
+    }
+    return 0;
+}</pre>
+            </div>
+
+            <p>这里read和write函数如果没有数据将阻塞，直到读取n或者写入n个byte数据为止。</p>
+
+            <h2>四、process_on_request实现</h2>
+
+            <div class="code-block">
+<pre>int32_t process_on_request(int conn_fd) {
+    // 4 byte header, string array +1
+    char r_buff[4 + MAX_MESSAGE_LEN + 1];
+    errno = 0;
+
+    // 读取头，4byte
+    int32_t err = read_message(conn_fd, r_buff, 4);
+    if (err) {
+        if (errno == 0) {
+            printf("read header complete");
+        } else {
+            printf("read header error");
+        }
+        return err;
+    }
+
+    uint32_t len = 0;
+    memcpy(&amp;len, r_buff, 4);
+    if (len &gt; MAX_MESSAGE_LEN) {
+        printf("message too long");
+        return -1;
+    }
+
+    // 读取消息内容，通过读取头获取
+    err = read_message(conn_fd, &amp;r_buff[4], len);
+    if (err) {
+        perror("read failed");
+        return err;
+    }
+
+    // 打印消息内容
+    r_buff[4 + len] = '\0';
+    printf("client says: %s\n", &amp;r_buff[4]);
+
+    // 回复给客户端内容
+    const char reply[] = "world";
+    char w_buf[4 + sizeof(reply)];
+    len = (uint32_t) strlen(reply);
+    memcpy(w_buf, &amp;len, 4);
+    memcpy(&amp;w_buf[4], reply, len);
+    return write_message(conn_fd, w_buf, 4 + len);
+}</pre>
+            </div>
+
+            <p>为方便起见，我们对最大请求大小设定了一个限制，并使用足够大的缓冲区来容纳一个请求。在解析协议时，端序曾经是一个考虑因素，但在今天已经不那么重要了，所以我们只是直接使用 memcpy 来处理整数。</p>
+
+            <h2>四、客户端实现</h2>
+
+            <div class="code-block">
+<pre>static int32_t send_message(int fd, const char *text) {
+    uint32_t len = (uint32_t) strlen(text);
+    if (len &gt; MAX_MESSAGE_LEN) {
+        return -1;
+    }
+
+    // header 4 byte
+    char wbuf[4 + MAX_MESSAGE_LEN];
+    memcpy(wbuf, &amp;len, 4); // assume little endian
+    memcpy(&amp;wbuf[4], text, len);
+    int32_t err = write_message(fd, wbuf, 4 + len);
+    if (err) {
+        return err;
+    }
+
+    // 4 bytes header, +1 for string array
+    char rbuf[4 + MAX_MESSAGE_LEN + 1];
+    errno = 0;
+    err = read_message(fd, rbuf, 4);
+    if (err) {
+        if (errno == 0) {
+            printf("read complete");
+        } else {
+            perror("read error");
+        }
+        return err;
+    }
+
+    memcpy(&amp;len, rbuf, 4); // assume little endian
+    if (len &gt; MAX_MESSAGE_LEN) {
+        printf("message too long");
+        return -1;
+    }
+
+    // reply body
+    err = read_message(fd, &amp;rbuf[4], len);
+    if (err) {
+        printf("message too long");
+        return err;
+    }
+
+    // print server message
+    rbuf[4 + len] = '\0';
+    printf("server says: %s\n", &amp;rbuf[4]);
+    return 0;
+}
+
+main.c
+
+send_message(fd, "消息1");
+send_message(fd, "消息2");
+send_message(fd, "消息3");</pre>
+            </div>
+
+        </div>
+
+        <div class="labels-section">标签：无</div>
+    </main>
+
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665165">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+
+    <script>var CURRENT_PAGE = '05-一次连接多次请求.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>

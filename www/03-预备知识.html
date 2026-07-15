@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>03. 预备知识 - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d;
+            --bg-color: #ffffff;
+            --link-color: #0052cc;
+            --heading-color: #172b4d;
+            --border-color: #dfe1e6;
+            --code-bg: #f4f5f7;
+            --max-width: 900px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        .static-header {
+            background: #f4f5f7;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo { font-weight: 700; font-size: 16px; color: #172b4d; text-decoration: none; }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+
+        .main-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 64px; }
+
+        .page-meta {
+            color: #5e6c84; font-size: 14px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2em; font-weight: 600; margin: 24px 0 16px;
+            color: var(--heading-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;
+        }
+        h1:first-of-type { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+
+        .wiki-content {}
+        .wiki-content h3 {
+            font-size: 1.2em; margin: 28px 0 10px; color: var(--heading-color);
+        }
+        .wiki-content p { margin: 12px 0; }
+        .wiki-content strong { color: #172b4d; }
+
+        /* 代码块 */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin: 14px 0;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            padding: 14px 18px;
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #172b4d;
+        }
+
+        /* 图片 */
+        .image-wrapper { text-align: center; margin: 20px 0; }
+        .image-wrapper img {
+            max-width: 100%; height: auto;
+            border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+                /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== *//* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px; padding-top: 16px;
+            border-top: 1px solid var(--border-color); font-size: 14px; color: #5e6c84;
+        }
+
+        .static-footer {
+            max-width: var(--max-width); margin: 0 auto; padding: 20px 24px 40px;
+            text-align: center; font-size: 13px; color: #5e6c84;
+            border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+        }
+
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+        <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+
+    <main class="main-container">
+
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+
+        <h1>03. 预备知识</h1>
+
+        <div class="wiki-content">
+
+            <h3>IP地址转换函数</h3>
+
+            <p>早期：</p>
+            <div class="code-block">
+<pre>#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;arpa/inet.h&gt;
+int inet_aton(const char *cp, struct in_addr *inp);
+in_addr_t inet_addr(const char *cp);
+char *inet_ntoa(struct in_addr in);
+只能处理IPv4的ip地址
+不可重入函数
+注意参数是struct in_addr</pre>
+            </div>
+
+            <p>现在：</p>
+            <div class="code-block">
+<pre>    #include &lt;arpa/inet.h&gt;
+    int inet_pton(int af, const char *src, void *dst);
+    const char *inet_ntop(int af, const void *src, char *dst, socklen_t size);</pre>
+            </div>
+
+            <p>支持IPv4和IPv6</p>
+            <p>可重入函数</p>
+            <p>其中inet_pton和inet_ntop不仅可以转换IPv4的in_addr，还可以转换IPv6的in6_addr。</p>
+            <p>因此函数接口是void *addrptr。</p>
+
+            <h3>sockaddr数据结构</h3>
+
+            <p>strcut sockaddr 很多网络编程函数诞生早于IPv4协议，那时候都使用的是sockaddr结构体,为了向前兼容，现在sockaddr退化成了（void *）的作用，传递一个地址给函数，至于这个函数是sockaddr_in还是sockaddr_in6，由地址族确定，然后函数内部再强制类型转化为所需的地址类型。</p>
+
+            <p><strong>可参看 man 7 ip。</strong></p>
+            <p><strong>地址格式定义在netinet/in.h，IPv4地址用sockaddr_in结构体表示。</strong></p>
+
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_5-9-51.png" alt="sockaddr数据结构">
+            </div>
+
+        </div>
+
+        <div class="labels-section">标签：无</div>
+    </main>
+
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665161">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+
+    <script>var CURRENT_PAGE = '03-预备知识.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/web.dir/link.d CMakeFiles/web.dir/src/config.c.o CMakeFiles/web.dir/src/file.c.o CMakeFiles/web.dir/src/http.c.o CMakeFiles/web.dir/src/main.c.o CMakeFiles/web.dir/src/server.c.o -o web

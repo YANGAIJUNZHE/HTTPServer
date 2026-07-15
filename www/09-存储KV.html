@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>09. 存储KV - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d; --bg-color: #ffffff; --link-color: #0052cc;
+            --heading-color: #172b4d; --border-color: #dfe1e6;
+            --code-bg: #f4f5f7; --max-width: 900px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px; line-height: 1.8; color: var(--text-color); background: var(--bg-color);
+        }
+        .static-header {
+            background: #f4f5f7; border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px; display: flex; align-items: center; gap: 16px; font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo { font-weight: 700; font-size: 16px; color: #172b4d; text-decoration: none; }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+        .main-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 64px; }
+        .page-meta {
+            color: #5e6c84; font-size: 14px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+        h1 {
+            font-size: 2em; font-weight: 600; margin: 24px 0 16px;
+            color: var(--heading-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;
+        }
+        h1:first-of-type { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+        .wiki-content p { margin: 12px 0; }
+        .code-block {
+            background: var(--code-bg); border: 1px solid var(--border-color);
+            border-radius: 4px; margin: 14px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            padding: 14px 18px;
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 13.5px; line-height: 1.6; color: #172b4d;
+            white-space: pre-wrap; word-break: break-word;
+        }
+                /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== *//* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px; padding-top: 16px;
+            border-top: 1px solid var(--border-color); font-size: 14px; color: #5e6c84;
+        }
+        .static-footer {
+            max-width: var(--max-width); margin: 0 auto; padding: 20px 24px 40px;
+            text-align: center; font-size: 13px; color: #5e6c84; border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+            .code-block pre { font-size: 12px; padding: 10px 12px; }
+        }
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+        <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+    <main class="main-container">
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+        <h1>09. 存储KV</h1>
+        <div class="wiki-content">
+            <p>代码为：</p>
+            <div class="code-block">
+<pre>/**
+ * 一个非常低效率的KV实现，建议使用hash实现
+ */
+#include &lt;kv_store.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+#define MAX_KV_CAPACITY 1000  // 最大容量
+
+struct KeyValue kv_store[MAX_KV_CAPACITY];
+int current_size = 0; // 当前store大小
+
+void kv_set(char *key, char *value) {
+    // Check if the key already exists
+    for (int i = 0; i &lt; current_size; ++i) {
+        if (strcmp(kv_store[i].key, key) == 0) {
+            // Key found, update the value
+            strcpy(kv_store[i].value, value);
+            return;
+        }
+    }
+
+    // Key not found, add a new entry if space is available
+    if (current_size &lt; MAX_KV_CAPACITY) {
+        strcpy(kv_store[current_size].key, key);
+        strcpy(kv_store[current_size].value, value);
+        current_size++;
+    } else {
+        printf("Key-value store is full!\n");
+    }
+}
+
+char *kv_get(char *key) {
+    for (int i = 0; i &lt; current_size; ++i) {
+        if (strcmp(kv_store[i].key, key) == 0) {
+            // Key found, return the value
+            return kv_store[i].value;
+        }
+    }
+    // Key not found
+    return NULL;
+}
+
+void kv_delete(char *key) {
+    int found = 0;
+
+    for (int i = 0; i &lt; current_size; ++i) {
+        if (strcmp(kv_store[i].key, key) == 0) {
+            // Shift elements left to fill the gap
+            for (int j = i; j &lt; current_size - 1; ++j) {
+                strcpy(kv_store[j].key, kv_store[j + 1].key);
+                strcpy(kv_store[j].value, kv_store[j + 1].value);
+            }
+            // Clear the last element
+            strcpy(kv_store[current_size - 1].key, "");
+            strcpy(kv_store[current_size - 1].value, "");
+            current_size--;
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) {
+        printf("Key '%s' not found.\n", key);
+    }
+}</pre>
+            </div>
+        </div>
+        <div class="labels-section">标签：无</div>
+    </main>
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665171">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+    <script>var CURRENT_PAGE = '09-存储KV.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>
