@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>示例：echo服务器 - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d; --bg-color: #ffffff; --link-color: #0052cc;
+            --heading-color: #172b4d; --border-color: #dfe1e6;
+            --code-bg: #f4f5f7; --max-width: 900px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px; line-height: 1.8; color: var(--text-color); background: var(--bg-color);
+        }
+        .static-header {
+            background: #f4f5f7; border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px; display: flex; align-items: center; gap: 16px; font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo { font-weight: 700; font-size: 16px; color: #172b4d; text-decoration: none; }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+        .main-container { max-width: var(--max-width); margin: 0 auto; padding: 32px 24px 64px; }
+        .page-meta {
+            color: #5e6c84; font-size: 14px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid var(--border-color);
+        }
+        h1 {
+            font-size: 2em; font-weight: 600; margin: 24px 0 16px;
+            color: var(--heading-color); border-bottom: 2px solid var(--border-color); padding-bottom: 8px;
+        }
+        h1:first-of-type { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+        .wiki-content p { margin: 12px 0; }
+        .code-block {
+            background: var(--code-bg); border: 1px solid var(--border-color);
+            border-radius: 4px; margin: 14px 0; overflow-x: auto;
+        }
+        .code-block pre {
+            padding: 14px 18px;
+            font-family: "Fira Code", "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+            font-size: 13.5px; line-height: 1.6; color: #172b4d;
+            white-space: pre-wrap; word-break: break-word;
+        }
+                /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px; padding-top: 16px;
+            border-top: 1px solid var(--border-color); font-size: 14px; color: #5e6c84;
+        }
+        .static-footer {
+            max-width: var(--max-width); margin: 0 auto; padding: 20px 24px 40px;
+            text-align: center; font-size: 13px; color: #5e6c84; border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+            .code-block pre { font-size: 12px; padding: 10px 12px; }
+        }
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+        <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+    <main class="main-container">
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+        <h1>示例：echo服务器</h1>
+        <div class="wiki-content">
+            <p>服务端：</p>
+            <p>server.c 的作用是从客户端读字符，然后将每个字符转换为大写并回送给客户端。</p>
+            <div class="code-block">
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;arpa/inet.h&gt;
+
+#define MAXLINE 80
+#define SERV_PORT 6666
+
+int main(void)
+{
+    struct sockaddr_in servaddr, cliaddr;
+    socklen_t cliaddr_len;
+    int listenfd, connfd;
+    char buf[MAXLINE];
+    char str[INET_ADDRSTRLEN];
+    int i, n;
+
+    listenfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    bzero(&amp;servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    servaddr.sin_port = htons(SERV_PORT);
+
+    bind(listenfd, (struct sockaddr *)&amp;servaddr, sizeof(servaddr));
+    listen(listenfd, 20);
+
+    printf("Accepting connections ...\n");
+    while (1) {
+        cliaddr_len = sizeof(cliaddr);
+        connfd = accept(listenfd, (struct sockaddr *)&amp;cliaddr, &amp;cliaddr_len);
+        n = read(connfd, buf, MAXLINE);
+        printf("received from %s at PORT %d\n",
+        inet_ntop(AF_INET, &amp;cliaddr.sin_addr, str, sizeof(str)),
+        ntohs(cliaddr.sin_port));
+        for (i = 0; i &lt; n; i++)
+            buf[i] = toupper(buf[i]);
+        write(connfd, buf, n);
+        close(connfd);
+    }
+    return 0;
+}</pre>
+            </div>
+
+            <p>客户端：</p>
+            <div class="code-block">
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+
+#define MAXLINE 80
+#define SERV_PORT 6666
+
+int main(int argc, char *argv[])
+{
+    struct sockaddr_in servaddr;
+    char buf[MAXLINE];
+    int sockfd, n;
+    char *str;
+
+    if (argc != 2) {
+        fputs("usage: ./client message\n", stderr);
+        exit(1);
+    }
+    str = argv[1];
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    bzero(&amp;servaddr, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    inet_pton(AF_INET, "127.0.0.1", &amp;servaddr.sin_addr);
+    servaddr.sin_port = htons(SERV_PORT);
+
+    connect(sockfd, (struct sockaddr *)&amp;servaddr, sizeof(servaddr));
+
+    write(sockfd, str, strlen(str));
+
+    n = read(sockfd, buf, MAXLINE);
+    printf("Response from server:\n");
+    write(STDOUT_FILENO, buf, n);
+    close(sockfd);
+
+    return 0;
+}</pre>
+            </div>
+
+            <p>由于客户端不需要固定的端口号，因此不必调用 bind()，客户端的端口号由内核自动分配。注意，客户端不是不允许调用 bind()，只是没有必要调用 bind() 固定一个端口号，服务器也不是必须调用 bind()，但如果服务器不调用 bind()，内核会自动给服务器分配监听端口，每次启动服务器时端口号都不一样，客户端要连接服务器就会遇到麻烦。</p>
+
+            <p>客户端和服务器启动后可以使用 netstat 命令查看链接情况：</p>
+            <div class="code-block">
+<pre>netstat -apn|grep 6666</pre>
+            </div>
+        </div>
+        <div class="labels-section">标签：无</div>
+    </main>
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665172">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+    <script>var CURRENT_PAGE = '示例-echo服务器.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>

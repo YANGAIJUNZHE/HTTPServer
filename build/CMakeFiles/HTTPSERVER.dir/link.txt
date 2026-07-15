@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/HTTPSERVER.dir/src/main.c.o CMakeFiles/HTTPSERVER.dir/src/server.c.o CMakeFiles/HTTPSERVER.dir/src/http.c.o CMakeFiles/HTTPSERVER.dir/src/file.c.o CMakeFiles/HTTPSERVER.dir/src/config.c.o -o HTTPSERVER 

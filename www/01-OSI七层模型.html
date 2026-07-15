@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>01. OSI七层模型 - 四川大学 - 上程数据</title>
+    <style>
+        /* ===== 基础样式 ===== */
+        :root {
+            --text-color: #172b4d;
+            --bg-color: #ffffff;
+            --link-color: #0052cc;
+            --heading-color: #172b4d;
+            --border-color: #dfe1e6;
+            --code-bg: #f4f5f7;
+            --max-width: 900px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        /* ===== 顶部导航栏（静态展示） ===== */
+        .static-header {
+            background: #f4f5f7;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .static-header .logo {
+            font-weight: 700;
+            font-size: 16px;
+            color: #172b4d;
+            text-decoration: none;
+        }
+        .static-header .breadcrumb {
+            color: #5e6c84;
+        }
+        .static-header .breadcrumb a {
+            color: #5e6c84;
+            text-decoration: none;
+        }
+        .static-header .breadcrumb a:hover {
+            color: var(--link-color);
+            text-decoration: underline;
+        }
+        .static-header .breadcrumb span {
+            margin: 0 4px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* ===== 页面元信息 ===== */
+        .page-meta {
+            color: #5e6c84;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* ===== 标题 ===== */
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin: 24px 0 16px;
+            color: var(--heading-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+        h1:first-of-type {
+            margin-top: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* ===== 内容样式 ===== */
+        .wiki-content { }
+
+        .wiki-content h1 {
+            font-size: 1.5em;
+            margin: 32px 0 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .wiki-content p {
+            margin: 12px 0;
+        }
+
+        .wiki-content ol, .wiki-content ul {
+            margin: 12px 0 12px 24px;
+        }
+
+        .wiki-content li {
+            margin: 8px 0;
+        }
+
+        .wiki-content strong {
+            color: #172b4d;
+        }
+
+        .wiki-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin: 12px 0;
+        }
+
+        /* ===== 图片容器 ===== */
+        .image-wrapper {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .image-wrapper img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .image-wrapper .caption {
+            font-size: 13px;
+            color: #5e6c84;
+            margin-top: 6px;
+        }
+
+        /* ===== 页脚 ===== */
+        .static-footer {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #5e6c84;
+            border-top: 1px solid var(--border-color);
+        }
+        .static-footer a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        /* ===== 面包屑下拉菜单 ===== */
+        .breadcrumb-dropdown {
+            position: relative;
+            display: inline;
+        }
+        .breadcrumb-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #5e6c84;
+            font-size: 14px;
+            padding: 0 2px;
+            margin: 0 4px;
+        }
+        .breadcrumb-toggle:hover {
+            color: var(--link-color);
+        }
+        .breadcrumb-menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            list-style: none;
+            min-width: 280px;
+            max-height: 360px;
+            overflow-y: auto;
+            z-index: 200;
+            padding: 8px 0;
+        }
+        .breadcrumb-dropdown.open .breadcrumb-menu {
+            display: block;
+        }
+        .breadcrumb-menu a {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .breadcrumb-menu a:hover {
+            background: #f4f5f7;
+            color: var(--link-color);
+        }
+        .breadcrumb-current {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* ===== 标签区域 ===== */
+        .labels-section {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 14px;
+            color: #5e6c84;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+            .wiki-content h1 { font-size: 1.25em; }
+        }
+
+        /* ===== 打印样式 ===== */
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+            .wiki-content img { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+
+    <!-- ===== 主体内容 ===== -->
+    <main class="main-container">
+
+        <!-- 页面元信息 -->
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+
+        <!-- 页面标题 -->
+        <h1>01. OSI七层模型</h1>
+
+        <!-- ===== 以下是原始内容 ===== -->
+        <div class="wiki-content">
+
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_4-37-12.png" alt="OSI七层模型示意图" height="400">
+            </div>
+
+            <ol>
+                <li><strong>物理层</strong>：主要定义物理设备标准，如网线的接口类型、光纤的接口类型、各种传输介质的传输速率等。它的主要作用是传输比特流（就是由1、0转化为电流强弱来进行传输，到达目的地后再转化为1、0，也就是我们常说的数模转换与模数转换）。这一层的数据叫做比特。</li>
+                <li><strong>数据链路层</strong>：定义了如何让格式化数据以帧为单位进行传输，以及如何让控制对物理介质的访问。这一层通常还提供错误检测和纠正，以确保数据的可靠传输。如：串口通信中使用到的115200、8、N、1</li>
+                <li><strong>网络层</strong>：在位于不同地理位置的网络中的两个主机系统之间提供连接和路径选择。Internet的发展使得从世界各站点访问信息的用户数大大增加，而网络层正是管理这种连接的层。</li>
+                <li><span style="color: rgb(255,0,0);"><strong>传输层</strong>：定义了一些传输数据的协议和端口号（WWW端口80等），如：TCP（传输控制协议，传输效率低，可靠性强，用于传输可靠性要求高，数据量大的数据），UDP（用户数据报协议，与TCP特性恰恰相反，用于传输可靠性要求不高，数据量小的数据，如QQ聊天数据就是通过这种方式传输的）。 主要是将从下层接收的数据进行分段和传输，到达目的地址后再进行重组。常常把这一层数据叫做段。</span></li>
+                <li><strong>会话层</strong>：通过传输层(端口号：传输端口与接收端口)建立数据传输的通路。主要在你的系统之间发起会话或者接受会话请求（设备之间需要互相认识可以是IP也可以是MAC或者是主机名）。</li>
+                <li><strong>表示层</strong>：可确保一个系统的应用层所发送的信息可以被另一个系统的应用层读取。例如，PC程序与另一台计算机进行通信，其中一台计算机使用扩展二一十进制交换码(EBCDIC)，而另一台则使用美国信息交换标准码（ASCII）来表示相同的字符。如有必要，表示层会通过使用一种通格式来实现多种数据格式之间的转换。</li>
+                <li><span style="color: rgb(255,0,0);"><strong>应用层</strong>：是最靠近用户的OSI层。这一层为用户的应用程序（例如电子邮件、文件传输和终端仿真）提供网络服务。</span></li>
+            </ol>
+
+            <h1>TCP协议</h1>
+            <p>传输控制协议（TCP，Transmission Control Protocol）是一种面向连接的、可靠的、基于字节流的传输层通信协议</p>
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_4-55-28.png" alt="TCP协议示意图" height="400">
+                <div class="caption">图：TCP协议保障了两城之间信息可靠的传输</div>
+            </div>
+
+            <h1>IP地址</h1>
+            <p>用来标识互联网中两台主机。</p>
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_4-58-45.png" alt="IP地址示意图" height="400">
+            </div>
+
+            <h1>HTTP协议</h1>
+            <p>你在浏览器中输入B站网址，那么你的浏览器将会向B站的服务器发送一个请求，服务器将会返回一些文件(包括图片，文字，样式等等)，然后由浏览器里渲染来呈现，这样，一次响应和请求就结束了。</p>
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_5-1-43.png" alt="HTTP请求响应示意图" height="400">
+            </div>
+            <p>一个请求头例子：</p>
+            <div class="image-wrapper">
+                <img src="images/image2021-7-23_5-2-36.png" alt="HTTP请求头示例" height="250">
+            </div>
+
+        </div>
+
+        <!-- 标签 -->
+        <div class="labels-section">
+            标签：无
+        </div>
+    </main>
+
+    <!-- ===== 页脚 ===== -->
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665150">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+    <script>var CURRENT_PAGE = '01-OSI七层模型.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>

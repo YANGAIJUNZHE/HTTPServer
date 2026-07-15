@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目案例-网络服务器 - 四川大学 - 上程数据</title>
+    <style>
+        :root {
+            --text-color: #172b4d;
+            --bg-color: #ffffff;
+            --link-color: #0052cc;
+            --border-color: #dfe1e6;
+            --max-width: 900px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            background: var(--bg-color);
+        }
+
+        /* 顶部导航 */
+        .static-header {
+            background: #f4f5f7;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 14px;
+        
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            }
+        .static-header .logo {
+            font-weight: 700;
+            font-size: 16px;
+            color: #172b4d;
+            text-decoration: none;
+        }
+        .static-header .breadcrumb { color: #5e6c84; }
+        .static-header .breadcrumb a { color: #5e6c84; text-decoration: none; }
+        .static-header .breadcrumb a:hover { color: var(--link-color); text-decoration: underline; }
+        .static-header .breadcrumb span { margin: 0 4px; }
+
+        /* 面包屑下拉菜单 */
+        .breadcrumb-dropdown { position: relative; display: inline; }
+        .breadcrumb-toggle { background: none; border: none; cursor: pointer; color: #5e6c84; font-size: 14px; padding: 0 2px; margin: 0 4px; }
+        .breadcrumb-toggle:hover { color: var(--link-color); }
+        .breadcrumb-menu { display: none; position: absolute; left: 0; top: 100%; margin-top: 4px; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); list-style: none; min-width: 280px; max-height: 360px; overflow-y: auto; z-index: 200; padding: 8px 0; }
+        .breadcrumb-dropdown.open .breadcrumb-menu { display: block; }
+        .breadcrumb-menu a { display: block; padding: 8px 16px; color: var(--text-color); text-decoration: none; font-size: 14px; }
+        .breadcrumb-menu a:hover { background: #f4f5f7; color: var(--link-color); }
+        .breadcrumb-current { color: var(--text-color); font-weight: 500; }
+
+        /* 主容器 */
+        .main-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 32px 24px 64px;
+        }
+
+        /* 页面元信息 */
+        .page-meta {
+            color: #5e6c84;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* 标题 */
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin: 0 0 24px;
+            color: var(--text-color);
+        }
+
+        /* 页脚 */
+        .static-footer {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #5e6c84;
+            border-top: 1px solid var(--border-color);
+        }
+        .static-footer a { color: var(--link-color); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .main-container { padding: 20px 16px 40px; }
+            .static-header { padding: 10px 16px; font-size: 13px; }
+            h1 { font-size: 1.5em; }
+        }
+
+        @media print {
+            .static-header, .static-footer { display: none; }
+            .main-container { max-width: 100%; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 顶部导航 ===== -->
+    <header class="static-header">
+        <a class="logo" href="index.html">上程数据</a>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </header>
+
+    <main class="main-container">
+
+        <div class="page-meta">
+            由 <strong>卢鑫培</strong> 创建于 <time datetime="2026-06-30">2026年6月30日</time>
+        </div>
+
+        <h1>项目案例-网络服务器</h1>
+
+        <ul style="list-style: none; font-size: 16px; line-height: 2;">
+            <li><a href="01-OSI七层模型.html">01. OSI七层模型</a></li>
+            <li><a href="02-Socket编程概念.html">02. Socket编程概念</a></li>
+            <li><a href="03-预备知识.html">03. 预备知识</a></li>
+            <li><a href="04-创建一个TCP服务器及客户端.html">04. 创建一个TCP服务器及客户端</a></li>
+            <li><a href="05-一次连接多次请求.html">05. 一次连接多次请求</a></li>
+            <li><a href="06-并发请求.html">06. 并发请求</a></li>
+            <li><a href="07-发送指令.html">07. 发送指令</a></li>
+            <li><a href="08-解析指令并返回.html">08. 解析指令并返回</a></li>
+            <li><a href="09-存储KV.html">09. 存储KV</a></li>
+            <li><a href="示例-echo服务器.html">示例：echo服务器</a></li>
+            <li><a href="示例-web服务器.html">示例：web服务器</a></li>
+        </ul>
+
+    </main>
+
+    <footer class="static-footer">
+        <p>内容来源：<a href="https://wiki.suncaper.net/pages/viewpage.action?pageId=183665149">上程数据 · 四川大学</a></p>
+        <p>基于 Atlassian Confluence 8.5.6 技术构建</p>
+    </footer>
+
+
+    <script>var CURRENT_PAGE = '项目案例-网络服务器.html';</script>
+    <script src="breadcrumb.js"></script>
+</body>
+</html>
