@@ -1,20 +1,11 @@
-cmake_minimum_required(VERSION 3.16)
-project(HTTPSERVER VERSION 1.0.0 LANGUAGES C)
+cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)#C17不降级，直接报错
+project(web C)
 
-set(SOURCES src/main.c src/server.c src/http.c src/file.c src/config.c)
+set(CMAKE_C_STANDARD 11)
 
-add_executable(HTTPSERVER ${SOURCES})#编译成可执行文件HTTPSERVER
+file(GLOB SRC_LIST "src/*.c")
 
-target_include_directories(HTTPSERVER PRIVATE src)#头文件在src
+add_executable(web ${SRC_LIST})
 
-#编译选项
-target_compile_options(HTTPSERVER PRIVATE $<$<CONFIG:Release>:-O2> -Wall -Wextra -pedantic)
-#定义_GNU_SOURCE 宏，用于暴漏Linux的api
-target_compile_definitions(HTTPSERVER PRIVATE _GNU_SOURCE)
-
-
-
-
+target_include_directories(web PRIVATE ${CMAKE_SOURCE_DIR}/src)

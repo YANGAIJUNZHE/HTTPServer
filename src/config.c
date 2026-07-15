@@ -1,91 +1,72 @@
-#include"config.h"
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<ctype.h>
-#include<limits.h>
-#include<errno.h>
+#include "config.h"
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <errno.h>
 
-#define DEFAULT_PORT 8080
-#define DEFAULT_ROOT "./www"//默认的web文档的根目录
+#define MAXLEN 1024
+#define PATH "/home/lld/code_train/config.ini"
 
-//static规定作用域只在此文件内部
-static char *trim(char *s){
-    //从尾部开始去掉空格
+void trim(char *s){
+    char *p=s;
+    while(*p&&isspace((unsigned char)*p))   p++;
+    if(p!=s){
+        char tmp[MAXLEN];
+        strcpy(tmp,p);
+        strcpy(s,tmp);
+    }
     char *end=s+strlen(s)-1;
-    while(end>=s&&isspace((unsigned char)*end)){//unsigned char保证能用isspace函数
+    while(end>=s&&isspace((unsigned char)*end)){
         *end='\0';
         end--;
     }
-    //从头开始去掉空格
-    while(isspace((unsigned char)*s)){
-        s++;
-    }
-
-    return s;
 }
 
-int config_load(const char *path,config_t *cfg){
-    FILE *fp;
-    char line[512];
-    int lineno=0;
-
-    cfg->port=DEFAULT_PORT;
-    strncpy(cfg->root_dir,DEFAULT_ROOT,sizeof(cfg->root_dir)-1);
-    cfg->root_dir[sizeof(cfg->root_dir)-1]='\0';
-
-    fp=fopen(path,"r");
-    if(fp==NULL){
-        fprintf(stderr,"无法打开配置文件%s:%s,使用默认值\n",path,strerror(errno));
+int get_cfg_str(const char *key,char *s){
+    FILE *fp=fopen(PATH,"r");
+    if(!fp){
+        fprintf(stderr,"Fail to open config file!\n");
         return -1;
     }
-
-    while(fgets(line,sizeof(line),fp)!=NULL){
-        char *key,*value,*eq;
-        ++lineno;
-        key=trim(line);
-        if(key[0]=='\0'||key[0]=='#'){
-            continue;
+    char line[MAXLEN];
+    while(fgets(line,sizeof(line),fp)){
+        trim(line);
+        if(!line[0]||line[0]=='#')  continue;
+        char *md=strchr(line,'=');
+        if(!md){
+            fprintf(stderr,"Invalid configuration!\n");
+            fclose(fp);
+            return -1;
         }
-
-        eq=strchr(key,'=');
-        if(eq==NULL){
-            fprintf(stderr,"第%d行格式错误:%s\n",lineno,key);
-            continue;
-        }
-
-        *eq='\0';
-        value=trim(eq+1);
-        key=trim(key);
-
-        if(strcmp(key,"PORT")==0){
-            long p=strtol(value,NULL,10);
-            if(p<1024||p>65535){
-                fprintf(stderr,"PORT值无效%s,使用默认值%d\n",value,DEFAULT_PORT);
-                cfg->port=DEFAULT_PORT;
-            }
-            else{
-                    cfg->port=(uint16_t)p;
-                }
-        }
-        else if(strcmp(key,"ROOT_DIR")==0){
-            char resolved[PATH_MAX];
-            if(realpath(value,resolved)==NULL){
-                fprintf(stderr,"ROOT_DIR无效%s:%s,使用默认%s\n",value,strerror(errno),DEFAULT_ROOT);
-                strncpy(cfg->root_dir,DEFAULT_ROOT,sizeof(cfg->root_dir)-1);
-
-            }
-            else{
-                strncpy(cfg->root_dir,resolved,sizeof(cfg->root_dir)-1);
-                cfg->root_dir[sizeof(cfg->root_dir)-1]='\0';
-            }
-        }
-        else{
-            fprintf(stderr,"第%d行未知键:%s\n",lineno,key);
+        char k[MAXLEN],v[MAXLEN];
+        strncpy(k,line,md-line);
+        k[md-line]='\0';
+        strcpy(v,md+1);
+        trim(k);
+        trim(v);
+        if(strcmp(k,key)==0){
+            strcpy(s,v);
+            fclose(fp);
+            return 0;
         }
     }
     fclose(fp);
-    return 0;
+    fprintf(stderr,"Required config not found!\n");
+    return -1;
 }
 
-
+int get_cfg_int(const char *key,int *num){
+    char buf[MAXLEN];
+    int res=get_cfg_str(key,buf);
+    if(res!=0)  return res;
+    char *p;
+    errno=0;
+    int n=(int)strtol(buf,&p,10);
+    if(errno==ERANGE||*p!='\0'){
+        fprintf(stderr,"Invalid configuration!\n");
+        return -1;
+    }
+    *num=n;
+    return 0;
+}

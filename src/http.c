@@ -1,109 +1,100 @@
-#include"http.h"
-#include"buffer.h"
-#include<stdio.h>
-#include<string.h>
+#include "http.h"
+#include "file.h"
+#include <ctype.h>
+#include <string.h>
+#include <strings.h>
+#include <stdlib.h>
+#include <stdio.h>
 
+char g_root[256];
 
-//在buf中找needle子串，返回头指针
-static const char *find_substr(const char* buf,size_t len,const char *needle){
-    size_t nlen=strlen(needle);
-    if(nlen>len){
-        return NULL;
-    }
-    for(size_t i=0;i+nlen<=len;++i){
-        if(memcmp(buf+i,needle,nlen)==0){
-            return buf+i;
+// URL 解码：将 %XX 转换为对应字节，原地修改，返回解码后长度
+static size_t url_decode(char *s, size_t len)
+{
+    size_t i = 0, j = 0;
+    while (i < len) {
+        if (s[i] == '%' && i + 2 < len) {
+            char hex[3] = {s[i+1], s[i+2], '\0'};
+            char *end;
+            long val = strtol(hex, &end, 16);
+            if (end == hex + 2) {
+                s[j++] = (char)val;
+                i += 3;
+                continue;
+            }
         }
+        s[j++] = s[i++];
     }
-    return NULL;
+    return j;
 }
 
-//一，解析请求
-
-
-int http_parse(const char* buf,size_t len,const char **method,size_t *mlen,const char**uri,size_t *ulen){
-    const char*sp1,*sp2,*end;
-    end=find_substr(buf,len,"\r\n");
-    if(end==NULL){
-        return HTTP_PARSE_BAD;
+static int parse_request(const char *buf,char *method,char *path){
+    //找请求行结尾 \r\n
+    const char *end=strstr(buf,"\r\n");
+    if(!end) return 400;
+    //解析方法
+    int i=0,j=0;
+    while(buf[i]!='\0'&&!isspace((unsigned char)buf[i])&&j<15){
+        method[j++]=buf[i++];
     }
-
-    sp1=find_substr(buf,(size_t)(end-buf)," ");
-    if(sp1==NULL){
-        return HTTP_PARSE_BAD;
+    method[j]='\0';
+    //检查方法
+    if(strcasecmp(method,"GET"))
+        return 501;
+    //跳过空白
+    while(buf[i]!='\0'&&isspace((unsigned char)buf[i])) i++;
+    if(buf[i]=='\0') return 400;
+    //解析path
+    j=0;
+    while(buf[i]!='\0'&&!isspace((unsigned char)buf[i])&&j<255){
+        path[j++]=buf[i++];
     }
-
-    sp2=find_substr(sp1+1,(size_t)(end-sp1-1)," ");
-    if(sp2==NULL){
-        return HTTP_PARSE_BAD;
-    }
-
-    *method=buf;
-    *mlen=(size_t)(sp1-buf);
-
-    *uri=sp1+1;
-    *ulen=(size_t)(sp2-sp1-1);
-
-    if(*mlen!=3||memcmp(*method,"GET",3)!=0){
-        return HTTP_PARSE_NOIMPL;//501
-    }
-
-    if(*ulen==0){
-        return HTTP_PARSE_BAD;//空，400
-    }
-    if(**uri!='/'){
-        return HTTP_PARSE_BAD;//不以/开头，400
-    }
-    if(find_substr(*uri,*ulen,"..")){
-        return HTTP_PARSE_BAD;//先简单检测一下路径穿越
-    }
-
-    return HTTP_PARSE_OK;//成功
-
+    path[j]='\0';
+    j=(int)url_decode(path,j);
+    path[j]='\0';
+    if(strstr(path,"..")) return 400;
+    //默认首页
+    if(strcmp(path,"/")==0)
+        strcpy(path,"/index.html");
+    return 200;
 }
 
-//二，构造响应
-
-const char*http_reason(int status){
-    switch(status){
-        case 200: return "OK";
-        case 400: return "Bad Request";
-        case 404: return "Not Found";
-        case 501: return "Not Implemented";
-        default: return "Unknown";
-    }
-} 
-
-int http_build_200(char *buf, size_t cap, const char *mime, off_t size)
-  {
-      return snprintf(buf, cap,
-          "HTTP/1.1 200 OK\r\n"
-          "Content-Type: %s\r\n"
-          "Content-Length: %ld\r\n"
-          "Connection: keep-alive\r\n"
-          "Server: clover/1.0\r\n"
-          "\r\n",
-          mime, size);
-  }
-static const char *error_body =
-      "<!DOCTYPE html>\r\n"
-      "<html><head><title>%d %s</title></head>\r\n"
-      "<body><h1>%d %s</h1></body>\r\n"
-      "</html>\r\n";
-
-int http_build_error(char* buf,size_t cap,int status){
-    const char*reason=http_reason(status);
-    char body[128];
-    int body_len=snprintf(body,sizeof(body),error_body,status,reason,status,reason);
-    int total=snprintf(buf,cap,
+//构造错误响应到buf
+static int build_error(int code,char *hdr){
+    const char *msg;
+    if(code==400) msg="Bad Request";
+    else if(code==404) msg="Not Found";
+    else msg="Not Implemented";
+    return sprintf(hdr,
         "HTTP/1.1 %d %s\r\n"
-        "Content-Type: text/html; charset=utf-8\r\n"
-        "Content-Length: %d\r\n"
-        "Connection: keep-alive\r\n"
-        "Server: clover/1.0\r\n"
+        "Server: jdbhttpd/0.1.0\r\n"
+        "Content-Type: text/html\r\n"
+        "Connection: close\r\n"
         "\r\n"
-        "%s",
-        status,reason,body_len,body
-    );
-    return total;
+        "<HTML><TITLE>%d %s</TITLE>\r\n"
+        "<BODY><P>%d %s</P></BODY></HTML>\r\n",
+        code,msg,code,msg,code,msg);
+}
+
+
+int accept_request(char *rbuf,int *rlen,struct response *resp){
+    //找头部结束 \r\n\r\n
+    char *end=strstr(rbuf,"\r\n\r\n");
+    if(!end) return 0; //数据不完整，需要更多
+    int consumed=(end-rbuf)+4;
+    //解析请求行
+    char method[16],path[256];
+    int ret=parse_request(rbuf,method,path);
+    if(ret==200){
+        ret=prepare_response(path,g_root,resp);
+    }
+    if(ret!=200){
+        resp->file_fd=-1;
+        resp->file_size=0;
+        resp->hdr_len=build_error(ret,resp->hdr);
+    }
+    //排空已消费的头部，剩余数据前移
+    memmove(rbuf,rbuf+consumed,*rlen-consumed);
+    *rlen-=consumed;
+    return 1;
 }

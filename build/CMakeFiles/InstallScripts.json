@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/lld/code_train/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
