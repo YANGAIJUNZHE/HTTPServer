@@ -8,12 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/lld/code_train/src/config.c" "CMakeFiles/web.dir/src/config.c.o" "gcc" "CMakeFiles/web.dir/src/config.c.o.d"
-  "/home/lld/code_train/src/file.c" "CMakeFiles/web.dir/src/file.c.o" "gcc" "CMakeFiles/web.dir/src/file.c.o.d"
-  "/home/lld/code_train/src/http.c" "CMakeFiles/web.dir/src/http.c.o" "gcc" "CMakeFiles/web.dir/src/http.c.o.d"
-  "/home/lld/code_train/src/main.c" "CMakeFiles/web.dir/src/main.c.o" "gcc" "CMakeFiles/web.dir/src/main.c.o.d"
-  "/home/lld/code_train/src/server.c" "CMakeFiles/web.dir/src/server.c.o" "gcc" "CMakeFiles/web.dir/src/server.c.o.d"
-  "" "web" "gcc" "CMakeFiles/web.dir/link.d"
+  "/home/yang/HTTPServer/src/config.c" "CMakeFiles/web.dir/src/config.c.o" "gcc" "CMakeFiles/web.dir/src/config.c.o.d"
+  "/home/yang/HTTPServer/src/file.c" "CMakeFiles/web.dir/src/file.c.o" "gcc" "CMakeFiles/web.dir/src/file.c.o.d"
+  "/home/yang/HTTPServer/src/http.c" "CMakeFiles/web.dir/src/http.c.o" "gcc" "CMakeFiles/web.dir/src/http.c.o.d"
+  "/home/yang/HTTPServer/src/main.c" "CMakeFiles/web.dir/src/main.c.o" "gcc" "CMakeFiles/web.dir/src/main.c.o.d"
+  "/home/yang/HTTPServer/src/server.c" "CMakeFiles/web.dir/src/server.c.o" "gcc" "CMakeFiles/web.dir/src/server.c.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

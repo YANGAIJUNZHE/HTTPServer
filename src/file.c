@@ -20,8 +20,13 @@ static const char *get_mime(const char *path){
 }
 
 int prepare_response(const char *path,const char *root,struct response *resp){
-    //拼接完整路径
+    //拼接完整路径，检查长度防止溢出
     char full[512];
+    int rlen=(int)strlen(root);
+    int plen=(int)strlen(path);
+    if(rlen+plen>=(int)sizeof(full)){
+        return 414;  // URI too long
+    }
     strcpy(full,root);
     strcat(full,path);
     //安全校验：防目录遍历
@@ -41,7 +46,8 @@ int prepare_response(const char *path,const char *root,struct response *resp){
     }
     //构造响应头
     const char *mime=get_mime(rp);
-    resp->hdr_len=sprintf(resp->hdr,
+    //加上长度限制防止缓冲区溢出
+    resp->hdr_len=snprintf(resp->hdr,sizeof(resp->hdr),
         "HTTP/1.1 200 OK\r\n"
         "Server: jdbhttpd/0.1.0\r\n"
         "Content-Type: %s\r\n"

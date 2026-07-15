@@ -1,4 +1,4 @@
-CMakeFiles/web.dir/src/main.c.o: /home/lld/code_train/src/main.c \
+CMakeFiles/web.dir/src/main.c.o: /home/yang/HTTPServer/src/main.c \
  /usr/include/stdc-predef.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -8,8 +8,8 @@ CMakeFiles/web.dir/src/main.c.o: /home/lld/code_train/src/main.c \
  /usr/include/x86_64-linux-gnu/bits/long-double.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -55,4 +55,10 @@ CMakeFiles/web.dir/src/main.c.o: /home/lld/code_train/src/main.c \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
  /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
- /home/lld/code_train/src/server.h
+ /home/yang/HTTPServer/src/server.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/wchar.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
+ /home/yang/HTTPServer/src/config.h

@@ -1,5 +1,5 @@
-CMakeFiles/web.dir/src/config.c.o: /home/lld/code_train/src/config.c \
- /usr/include/stdc-predef.h /home/lld/code_train/src/config.h \
+CMakeFiles/web.dir/src/config.c.o: /home/yang/HTTPServer/src/config.c \
+ /usr/include/stdc-predef.h /home/yang/HTTPServer/src/config.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -9,8 +9,8 @@ CMakeFiles/web.dir/src/config.c.o: /home/lld/code_train/src/config.c \
  /usr/include/x86_64-linux-gnu/bits/long-double.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \

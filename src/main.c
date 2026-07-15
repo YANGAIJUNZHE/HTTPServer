@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include "server.h"
+#include "config.h"
 
 static int g_server;//信号处理器
 
@@ -11,8 +12,10 @@ static void on_signal(int sig){
     }
 }
 
-int main(void){
-    g_server=server_create();
+int main(int argc, char **argv) {
+    const char *path = (argc >= 2) ? argv[1] : "./config.ini";
+    config_load(path);
+    g_server = server_create();
     if(!g_server){
         fprintf(stderr,"server init failed\n");
         return 1;

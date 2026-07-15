@@ -6,7 +6,14 @@
 #include <errno.h>
 
 #define MAXLEN 1024
-#define PATH "/home/lld/code_train/config.ini"
+
+static char g_cfg_path[512];
+
+int config_load(const char *path) {
+    strncpy(g_cfg_path, path, sizeof(g_cfg_path)-1);
+    g_cfg_path[sizeof(g_cfg_path)-1] = '\0';
+    return 0;
+}
 
 void trim(char *s){
     char *p=s;
@@ -24,7 +31,7 @@ void trim(char *s){
 }
 
 int get_cfg_str(const char *key,char *s){
-    FILE *fp=fopen(PATH,"r");
+    FILE *fp=fopen(g_cfg_path,"r");
     if(!fp){
         fprintf(stderr,"Fail to open config file!\n");
         return -1;

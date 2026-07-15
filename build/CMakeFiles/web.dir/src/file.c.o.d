@@ -1,6 +1,6 @@
-CMakeFiles/web.dir/src/file.c.o: /home/lld/code_train/src/file.c \
- /usr/include/stdc-predef.h /home/lld/code_train/src/file.h \
- /home/lld/code_train/src/http.h \
+CMakeFiles/web.dir/src/file.c.o: /home/yang/HTTPServer/src/file.c \
+ /usr/include/stdc-predef.h /home/yang/HTTPServer/src/file.h \
+ /home/yang/HTTPServer/src/http.h \
  /usr/include/x86_64-linux-gnu/sys/types.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -16,7 +16,7 @@ CMakeFiles/web.dir/src/file.c.o: /home/lld/code_train/src/file.c \
  /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/timer_t.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h /usr/include/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endian.h \
  /usr/include/x86_64-linux-gnu/bits/endianness.h \
@@ -35,7 +35,7 @@ CMakeFiles/web.dir/src/file.c.o: /home/lld/code_train/src/file.c \
  /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
  /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
- /usr/lib/gcc/x86_64-linux-gnu/15/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \

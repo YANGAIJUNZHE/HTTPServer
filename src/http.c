@@ -59,13 +59,12 @@ static int parse_request(const char *buf,char *method,char *path){
     return 200;
 }
 
-//构造错误响应到buf
-static int build_error(int code,char *hdr){
+static int build_error(int code, char *hdr, size_t hdr_size) {
     const char *msg;
-    if(code==400) msg="Bad Request";
-    else if(code==404) msg="Not Found";
-    else msg="Not Implemented";
-    return sprintf(hdr,
+    if (code == 400) msg = "Bad Request";
+    else if (code == 404) msg = "Not Found";
+    else msg = "Not Implemented";
+    return snprintf(hdr, hdr_size,
         "HTTP/1.1 %d %s\r\n"
         "Server: jdbhttpd/0.1.0\r\n"
         "Content-Type: text/html\r\n"
@@ -73,7 +72,7 @@ static int build_error(int code,char *hdr){
         "\r\n"
         "<HTML><TITLE>%d %s</TITLE>\r\n"
         "<BODY><P>%d %s</P></BODY></HTML>\r\n",
-        code,msg,code,msg,code,msg);
+        code, msg, code, msg, code, msg);
 }
 
 
@@ -91,7 +90,7 @@ int accept_request(char *rbuf,int *rlen,struct response *resp){
     if(ret!=200){
         resp->file_fd=-1;
         resp->file_size=0;
-        resp->hdr_len=build_error(ret,resp->hdr);
+        resp->hdr_len = build_error(ret, resp->hdr, sizeof(resp->hdr));
     }
     //排空已消费的头部，剩余数据前移
     memmove(rbuf,rbuf+consumed,*rlen-consumed);
