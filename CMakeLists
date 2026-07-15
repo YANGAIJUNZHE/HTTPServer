@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(web C)
+
+set(CMAKE_C_STANDARD 11)
+
+file(GLOB SRC_LIST "src/*.c")
+
+add_executable(web ${SRC_LIST})
+
+target_include_directories(web PRIVATE ${CMAKE_SOURCE_DIR}/src)
