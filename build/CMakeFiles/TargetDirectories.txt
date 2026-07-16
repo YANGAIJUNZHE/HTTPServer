@@ -1,3 +1,0 @@
-/home/yang/HTTPServer/build/CMakeFiles/web.dir
-/home/yang/HTTPServer/build/CMakeFiles/edit_cache.dir
-/home/yang/HTTPServer/build/CMakeFiles/rebuild_cache.dir

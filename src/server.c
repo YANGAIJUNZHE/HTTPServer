@@ -37,7 +37,7 @@ struct conn {
 // 全局状态
 static struct sockaddr_in serv_addr, cli_addr;
 static struct epoll_event ev, events[MAX_EVENTS];
-static int listen_fd = -1, epfd = -1;
+static int listen_fd, epfd;
 static socklen_t cliaddr_len;
 static int running;
 static int nconn, max_conn;
@@ -109,7 +109,7 @@ void timer_tick(void) {
                 c->timer = NULL;
                 free(t);
                 // 关连接
-                if (c->resp.file_fd >= 0) close(c->resp.file_fd);
+                close(c->resp.file_fd);
                 epoll_ctl(epfd, EPOLL_CTL_DEL, c->fd, NULL);
                 close(c->fd);
                 memset(c, 0, sizeof(struct conn));
@@ -122,8 +122,8 @@ void timer_tick(void) {
 
 // 连接关闭
 static void conn_close(struct conn *c) {
-    timer_cancel(c);                    // 先摘掉定时器
-    if (c->resp.file_fd >= 0) close(c->resp.file_fd);
+    timer_cancel(c);
+    close(c->resp.file_fd);
     epoll_ctl(epfd, EPOLL_CTL_DEL, c->fd, NULL);
     close(c->fd);
     memset(c, 0, sizeof(struct conn));
@@ -143,7 +143,7 @@ int server_create(void) {
 
     int op = 1;
     if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &op, sizeof(op)) == -1) {
-        perror("setsockopt SO_REUSEADDR"); return 0;
+        perror("setsockopt SO_REUSEADDR"); close(listen_fd); return 0;
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -151,20 +151,20 @@ int server_create(void) {
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port        = htons(port);
     if (bind(listen_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        perror("bind address failed"); return 0;
+        perror("bind address failed"); close(listen_fd); return 0;
     }
     if (listen(listen_fd, backlog) < 0) {
-        perror("listen failed"); return 0;
+        perror("listen failed"); close(listen_fd); return 0;
     }
     fcntl(listen_fd, F_SETFL, fcntl(listen_fd, F_GETFL, 0) | O_NONBLOCK);
 
     if ((epfd = epoll_create1(0)) < 0) {
-        perror("epoll create failed"); return 0;
+        perror("epoll create failed"); close(listen_fd); return 0;
     }
     ev.events  = EPOLLIN;
     ev.data.fd = listen_fd;
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev) < 0) {
-        perror("epoll_ctl add listenfd fail"); return 0;
+        perror("epoll_ctl add listenfd fail"); close(epfd); close(listen_fd); return 0;
     }
 
     timer_init();
@@ -213,10 +213,15 @@ void server_run(void) {
                     if (!c) { close(conn_fd); nconn--; continue; }
 
                     c->fd = conn_fd;
-                    timer_add(c, KEEP_ALIVE_TIMEOUT);   // 新连接即加定时器
+                    c->resp.file_fd = -1;
                     ev.events  = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                     ev.data.ptr = c;
-                    epoll_ctl(epfd, EPOLL_CTL_ADD, conn_fd, &ev);
+                    if (epoll_ctl(epfd, EPOLL_CTL_ADD, conn_fd, &ev) < 0) {
+                        close(conn_fd);
+                        c->fd = 0;
+                        nconn--;
+                        continue;
+                    }
                 }
                 continue;
             }
@@ -253,7 +258,10 @@ void server_run(void) {
                 c->file_left = c->resp.file_size;
                 ev.events    = EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                 ev.data.ptr  = c;
-                epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev);
+                if (epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev) < 0) {
+                    conn_close(c);
+                    continue;
+                }
                 continue;
             }
 
@@ -271,7 +279,7 @@ void server_run(void) {
                 }
 
                 // 发文件体
-                if (done && c->resp.file_fd >= 0 && c->file_left > 0) {
+                if (done && c->file_left > 0) {
                     ssize_t n = sendfile(c->fd, c->resp.file_fd,
                                          &c->file_off, c->file_left);
                     if (n < 0 && errno == EAGAIN) {
@@ -288,18 +296,31 @@ void server_run(void) {
                 if (!done) continue;
 
                 // keep-alive：发完切回读 + 定时器
-                if (c->resp.file_fd >= 0) {
-                    close(c->resp.file_fd);
-                    c->resp.file_fd = -1;
-                }
+                close(c->resp.file_fd);
+                c->resp.file_fd = -1;
                 c->rlen = 0;
-                timer_add(c, KEEP_ALIVE_TIMEOUT);
                 ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                 ev.data.ptr = c;
-                epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev);
+                if (epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev) < 0) {
+                    conn_close(c);
+                    continue;
+                }
+                timer_add(c, KEEP_ALIVE_TIMEOUT);
             }
         }
-
         timer_tick();
     }
+
+    // 清理所有活跃连接
+    for (int i = 0; i < max_conn; i++) {
+        if (conns[i].fd > 0) {
+            timer_cancel(&conns[i]);
+            close(conns[i].resp.file_fd);
+            epoll_ctl(epfd, EPOLL_CTL_DEL, conns[i].fd, NULL);
+            close(conns[i].fd);
+        }
+    }
+
+    close(epfd);
+    close(listen_fd);
 }

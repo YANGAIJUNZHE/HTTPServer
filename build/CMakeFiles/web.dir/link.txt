@@ -1,1 +1,0 @@
-/usr/bin/cc -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address,undefined CMakeFiles/web.dir/src/config.c.o CMakeFiles/web.dir/src/file.c.o CMakeFiles/web.dir/src/http.c.o CMakeFiles/web.dir/src/main.c.o CMakeFiles/web.dir/src/server.c.o -o web 
