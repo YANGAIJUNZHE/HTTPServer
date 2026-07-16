@@ -242,7 +242,7 @@ static void conn_start_write(struct conn *c) {
 // --- Server 生命周期 ---
 
 int server_create(void) {
-    int port, backlog, max_conn, tpool_threads, ka_ms;
+    int port, backlog, tpool_threads, ka_ms;
 
     if (get_cfg_int("PORT",               &port)          < 0) { fprintf(stderr, "PORT config required\n");            return 0; }
     if (get_cfg_int("BACKLOG",            &backlog)       < 0) { fprintf(stderr, "BACKLOG config required\n");         return 0; }

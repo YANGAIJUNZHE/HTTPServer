@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sqlite3.h>
 #include <time.h>
 #include <openssl/rand.h>
@@ -41,8 +43,8 @@ static char *gen_token(void) {
 /* ------------------------------------------------------------------ */
 
 int auth_db_init(const char *root_dir) {
-    char db_path[512];
     char dir[512];
+    char db_path[540];  // dir(512) + "/data/users.db"(14) + '\0'
 
     strncpy(dir, root_dir, sizeof(dir) - 1);
     dir[sizeof(dir) - 1] = '\0';
@@ -51,6 +53,11 @@ int auth_db_init(const char *root_dir) {
     char *last_slash = strrchr(dir, '/');
     if (last_slash && last_slash != dir)
         *last_slash = '\0';
+
+    // 确保 data/ 目录存在
+    char data_dir[540];
+    snprintf(data_dir, sizeof(data_dir), "%s/data", dir);
+    mkdir(data_dir, 0755);
 
     snprintf(db_path, sizeof(db_path), "%s/data/users.db", dir);
 
