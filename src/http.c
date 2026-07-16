@@ -151,6 +151,15 @@ static const char *find_body(const char *buf) {
     return sep + 4;
 }
 
+// --- 从请求头中解析 Content-Length ---
+static int get_content_length(const char *headers) {
+    const char *cl = strcasestr(headers, "Content-Length:");
+    if (!cl) return -1;
+    cl += 15;  // skip "Content-Length:"
+    while (*cl == ' ' || *cl == '\t') cl++;
+    return atoi(cl);
+}
+
 // =========================================================================
 //  2. 响应构造器（底层 —— 仅构建字节流，不修改 response 其他字段）
 // =========================================================================
@@ -356,6 +365,11 @@ int accept_request(char *rbuf, int *rlen, struct response *resp) {
 
     // ── POST 动态路由 ──
     if (strcasecmp(method, "POST") == 0) {
+        // 检查 Content-Length，确保 body 完整接收
+        int cl = get_content_length(rbuf);
+        int body_len = *rlen - consumed;
+        if (cl > 0 && body_len < cl) return 0;  // body 没收全，继续等待
+
         const char *body = find_body(rbuf);
         if (!body) {
             response_html(resp, 400, "Bad Request",
