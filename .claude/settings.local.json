@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(mkdir -p /home/lld/code_train/build)",
-      "Bash(cmake ..)",
-      "Bash(make)"
-    ]
-  }
-}

@@ -2,6 +2,7 @@
 #include "config.h"
 #include "http.h"
 #include "threadpool.h"
+#include "auth_db.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,7 +23,6 @@
 // 时间轮参数
 #define TIMER_SLOT         512
 #define TIMER_GRANULARITY  100
-#define KEEP_ALIVE_TIMEOUT 5000
 
 // 连接状态
 enum {
@@ -67,6 +67,9 @@ static uint64_t last_tick_ms;
 
 // 线程池
 static threadpool_t *g_tpool = NULL;
+
+// keep-alive 超时（毫秒），从配置读取
+static uint64_t g_keep_alive_ms;
 
 // --- 时间轮（不变） ---
 
@@ -178,7 +181,6 @@ static void conn_start_write(struct conn *c) {
     // 大文件 → 提交线程池
     if (c->resp.use_thread && c->resp.file_fd >= 0 && c->resp.file_size > 0) {
         c->notify_fd = eventfd(0, EFD_NONBLOCK);
-        c->resp.notify_fd = c->notify_fd;
         c->state = CS_THREADING;
 
         // 先发响应头（主线程）
@@ -240,12 +242,22 @@ static void conn_start_write(struct conn *c) {
 // --- Server 生命周期 ---
 
 int server_create(void) {
-    int port, backlog;
-    if (get_cfg_int("PORT", &port) < 0)       { fprintf(stderr,"PORT config failed\n");      return 0; }
-    if (get_cfg_int("BACKLOG", &backlog) < 0) { fprintf(stderr,"BACKLOG config failed\n");   return 0; }
-    if (get_cfg_int("MAX_CONN", &max_conn) < 0){ fprintf(stderr,"MAX_CONN config failed\n");  return 0; }
+    int port, backlog, max_conn, tpool_threads, ka_ms;
+
+    if (get_cfg_int("PORT",               &port)          < 0) { fprintf(stderr, "PORT config required\n");            return 0; }
+    if (get_cfg_int("BACKLOG",            &backlog)       < 0) { fprintf(stderr, "BACKLOG config required\n");         return 0; }
+    if (get_cfg_int("MAX_CONN",           &max_conn)      < 0) { fprintf(stderr, "MAX_CONN config required\n");        return 0; }
+    if (get_cfg_int("TPOOL_THREADS",      &tpool_threads) < 0) { fprintf(stderr, "TPOOL_THREADS config required\n");   return 0; }
+    if (get_cfg_int("KEEP_ALIVE_TIMEOUT", &ka_ms)         < 0) { fprintf(stderr, "KEEP_ALIVE_TIMEOUT config required\n"); return 0; }
+    if (get_cfg_str("ROOT_DIR",            g_root)        < 0) { fprintf(stderr, "ROOT_DIR config required\n");        return 0; }
+
+    if (auth_db_init(g_root) < 0) {
+        fprintf(stderr, "Database init failed\n");
+        return 0;
+    }
+
+    g_keep_alive_ms = (uint64_t)ka_ms;
     if (max_conn > MAX_CONNS) max_conn = MAX_CONNS;
-    if (get_cfg_str("ROOT_DIR", g_root) < 0)  { fprintf(stderr,"ROOT_DIR config failed\n");  return 0; }
 
     if ((listen_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) { perror("socket create failed"); return 0; }
 
@@ -276,10 +288,6 @@ int server_create(void) {
     }
 
     timer_init();
-
-    // 创建线程池（线程数从配置读，默认 DETHREADS_NUM）
-    int tpool_threads = DETHREADS_NUM;
-    get_cfg_int("TPOOL_THREADS", &tpool_threads);
     g_tpool = tpool_create(tpool_threads);
 
     printf("[INFO] server created\n");
@@ -329,7 +337,7 @@ void server_run(void) {
                     memset(c, 0, sizeof(*c));
                     c->fd    = conn_fd;
                     c->state = CS_READ;
-                    timer_add(c, KEEP_ALIVE_TIMEOUT);
+                    timer_add(c, g_keep_alive_ms);
                     ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                     ev.data.ptr = c;
                     epoll_ctl(epfd, EPOLL_CTL_ADD, conn_fd, &ev);
@@ -358,7 +366,7 @@ void server_run(void) {
                 // 重新注册客户端 fd 到 epoll，切回读模式
                 c->state = CS_READ;
                 c->rlen  = 0;
-                timer_add(c, KEEP_ALIVE_TIMEOUT);
+                timer_add(c, g_keep_alive_ms);
                 ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                 ev.data.ptr = c;
                 epoll_ctl(epfd, EPOLL_CTL_ADD, c->fd, &ev);
@@ -433,7 +441,7 @@ void server_run(void) {
                 // keep-alive 模式下切回读
                 if (c->resp.keep_alive) {
                     c->rlen = 0;
-                    timer_add(c, KEEP_ALIVE_TIMEOUT);
+                    timer_add(c, g_keep_alive_ms);
                     ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                     ev.data.ptr = c;
                     epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev);
