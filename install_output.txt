@@ -1,2 +1,0 @@
-sudo: unable to restore terminal settings: 非法 seek 操作
-sudo: 需要密码

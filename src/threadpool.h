@@ -1,5 +1,6 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
+#define DETHREADS_NUM  4  
 
 #include <stddef.h>
 #include <stdint.h>

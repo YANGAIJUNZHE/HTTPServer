@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #define CHUNK_SIZE  (256UL * 1024)  // 每块 256KB，平衡性能和交互
+ #define DETHREADS_NUM  4 
 
 // 任务队列节点
 typedef struct task_node {
@@ -22,11 +23,11 @@ struct threadpool {
     int             nthreads;
     int             running;
 
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
+    pthread_mutex_t mutex;//互斥锁
+    pthread_cond_t  cond;//条件变量
     task_node_t    *head;
     task_node_t    *tail;
-    int             pending;    // 等待数
+    int             pending;    // 任务数
 };
 
 // --- 工作线程 ---
@@ -54,7 +55,7 @@ static void *worker_loop(void *arg) {
 
         file_task_t *t = &t_copy;
 
-        // 临时设 socket 为阻塞模式，让 sendfile 高效传输
+        // 临时设 socket 为阻塞模式，ssendfile实现更简单
         int old_flags = fcntl(t->conn_fd, F_GETFL, 0);
         fcntl(t->conn_fd, F_SETFL, old_flags & ~O_NONBLOCK);
 
@@ -86,8 +87,7 @@ static void *worker_loop(void *arg) {
 // --- 创建 ---
 threadpool_t *tpool_create(int threads) {
     if (threads <= 0) {
-        threads = (int)sysconf(_SC_NPROCESSORS_ONLN);
-        if (threads < 1) threads = 1;
+        threads = DETHREADS_NUM;
     }
 
     threadpool_t *tp = calloc(1, sizeof(*tp));
@@ -141,7 +141,7 @@ void tpool_destroy(threadpool_t *tp) {
     pthread_mutex_unlock(&tp->mutex);
 
     for (int i = 0; i < tp->nthreads; i++) {
-        pthread_join(tp->workers[i], NULL);
+        pthread_join(tp->workers[i], NULL);//回收线程
     }
 
     // 清理残留任务

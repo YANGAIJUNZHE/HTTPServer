@@ -277,8 +277,8 @@ int server_create(void) {
 
     timer_init();
 
-    // 创建线程池（线程数从配置读，默认 4）
-    int tpool_threads = 4;
+    // 创建线程池（线程数从配置读，默认 DETHREADS_NUM）
+    int tpool_threads = DETHREADS_NUM;
     get_cfg_int("TPOOL_THREADS", &tpool_threads);
     g_tpool = tpool_create(tpool_threads);
 

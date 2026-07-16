@@ -17,7 +17,7 @@ static void on_signal(int sig) {
 }
 
 int main(int argc, char **argv) {
-    const char *cfg_path = (argc >= 2) ? argv[1] : "./config.ini";
+    const char *cfg_path = (argc >= 2) ? argv[1] : "../config.ini";
     config_load(cfg_path);
 
     // 读 ROOT_DIR 用于数据库路径
