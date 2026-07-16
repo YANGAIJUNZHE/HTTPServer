@@ -6,5 +6,5 @@ C_DEFINES =
 
 C_INCLUDES = -I/home/yang/HTTPServer/src
 
-C_FLAGS = -g -O0 -Wall -Wextra -Wpedantic -fsanitize=address,undefined -std=gnu17
+C_FLAGS = -g -O0 -Wall -Wextra -std=gnu17
 

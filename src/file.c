@@ -49,10 +49,10 @@ int prepare_response(const char *path,const char *root,struct response *resp){
     //加上长度限制防止缓冲区溢出
     resp->hdr_len=snprintf(resp->hdr,sizeof(resp->hdr),
         "HTTP/1.1 200 OK\r\n"
-        "Server: jdbhttpd/0.1.0\r\n"
+        "Server: jdbhttpd/0.2.0\r\n"
         "Content-Type: %s\r\n"
         "Content-Length: %ld\r\n"
-        "Connection: close\r\n"
+        "Connection: keep-alive\r\n"
         "\r\n",mime,st.st_size);
     resp->file_fd=fd;
     resp->file_size=st.st_size;

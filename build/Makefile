@@ -129,6 +129,30 @@ web/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/build
 .PHONY : web/fast
 
+src/auth_db.o: src/auth_db.c.o
+.PHONY : src/auth_db.o
+
+# target to build an object file
+src/auth_db.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/auth_db.c.o
+.PHONY : src/auth_db.c.o
+
+src/auth_db.i: src/auth_db.c.i
+.PHONY : src/auth_db.i
+
+# target to preprocess a source file
+src/auth_db.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/auth_db.c.i
+.PHONY : src/auth_db.c.i
+
+src/auth_db.s: src/auth_db.c.s
+.PHONY : src/auth_db.s
+
+# target to generate assembly for a file
+src/auth_db.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/auth_db.c.s
+.PHONY : src/auth_db.c.s
+
 src/config.o: src/config.c.o
 .PHONY : src/config.o
 
@@ -249,6 +273,30 @@ src/server.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/server.c.s
 .PHONY : src/server.c.s
 
+src/threadpool.o: src/threadpool.c.o
+.PHONY : src/threadpool.o
+
+# target to build an object file
+src/threadpool.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/threadpool.c.o
+.PHONY : src/threadpool.c.o
+
+src/threadpool.i: src/threadpool.c.i
+.PHONY : src/threadpool.i
+
+# target to preprocess a source file
+src/threadpool.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/threadpool.c.i
+.PHONY : src/threadpool.c.i
+
+src/threadpool.s: src/threadpool.c.s
+.PHONY : src/threadpool.s
+
+# target to generate assembly for a file
+src/threadpool.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/web.dir/build.make CMakeFiles/web.dir/src/threadpool.c.s
+.PHONY : src/threadpool.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -258,6 +306,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... web"
+	@echo "... src/auth_db.o"
+	@echo "... src/auth_db.i"
+	@echo "... src/auth_db.s"
 	@echo "... src/config.o"
 	@echo "... src/config.i"
 	@echo "... src/config.s"
@@ -273,6 +324,9 @@ help:
 	@echo "... src/server.o"
 	@echo "... src/server.i"
 	@echo "... src/server.s"
+	@echo "... src/threadpool.o"
+	@echo "... src/threadpool.i"
+	@echo "... src/threadpool.s"
 .PHONY : help
 
 

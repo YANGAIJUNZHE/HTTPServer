@@ -69,10 +69,24 @@ include CMakeFiles/web.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/web.dir/flags.make
 
+CMakeFiles/web.dir/src/auth_db.c.o: CMakeFiles/web.dir/flags.make
+CMakeFiles/web.dir/src/auth_db.c.o: /home/yang/HTTPServer/src/auth_db.c
+CMakeFiles/web.dir/src/auth_db.c.o: CMakeFiles/web.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/web.dir/src/auth_db.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/auth_db.c.o -MF CMakeFiles/web.dir/src/auth_db.c.o.d -o CMakeFiles/web.dir/src/auth_db.c.o -c /home/yang/HTTPServer/src/auth_db.c
+
+CMakeFiles/web.dir/src/auth_db.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/web.dir/src/auth_db.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/yang/HTTPServer/src/auth_db.c > CMakeFiles/web.dir/src/auth_db.c.i
+
+CMakeFiles/web.dir/src/auth_db.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/web.dir/src/auth_db.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/yang/HTTPServer/src/auth_db.c -o CMakeFiles/web.dir/src/auth_db.c.s
+
 CMakeFiles/web.dir/src/config.c.o: CMakeFiles/web.dir/flags.make
 CMakeFiles/web.dir/src/config.c.o: /home/yang/HTTPServer/src/config.c
 CMakeFiles/web.dir/src/config.c.o: CMakeFiles/web.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/web.dir/src/config.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/web.dir/src/config.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/config.c.o -MF CMakeFiles/web.dir/src/config.c.o.d -o CMakeFiles/web.dir/src/config.c.o -c /home/yang/HTTPServer/src/config.c
 
 CMakeFiles/web.dir/src/config.c.i: cmake_force
@@ -86,7 +100,7 @@ CMakeFiles/web.dir/src/config.c.s: cmake_force
 CMakeFiles/web.dir/src/file.c.o: CMakeFiles/web.dir/flags.make
 CMakeFiles/web.dir/src/file.c.o: /home/yang/HTTPServer/src/file.c
 CMakeFiles/web.dir/src/file.c.o: CMakeFiles/web.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/web.dir/src/file.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/web.dir/src/file.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/file.c.o -MF CMakeFiles/web.dir/src/file.c.o.d -o CMakeFiles/web.dir/src/file.c.o -c /home/yang/HTTPServer/src/file.c
 
 CMakeFiles/web.dir/src/file.c.i: cmake_force
@@ -100,7 +114,7 @@ CMakeFiles/web.dir/src/file.c.s: cmake_force
 CMakeFiles/web.dir/src/http.c.o: CMakeFiles/web.dir/flags.make
 CMakeFiles/web.dir/src/http.c.o: /home/yang/HTTPServer/src/http.c
 CMakeFiles/web.dir/src/http.c.o: CMakeFiles/web.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/web.dir/src/http.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/web.dir/src/http.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/http.c.o -MF CMakeFiles/web.dir/src/http.c.o.d -o CMakeFiles/web.dir/src/http.c.o -c /home/yang/HTTPServer/src/http.c
 
 CMakeFiles/web.dir/src/http.c.i: cmake_force
@@ -114,7 +128,7 @@ CMakeFiles/web.dir/src/http.c.s: cmake_force
 CMakeFiles/web.dir/src/main.c.o: CMakeFiles/web.dir/flags.make
 CMakeFiles/web.dir/src/main.c.o: /home/yang/HTTPServer/src/main.c
 CMakeFiles/web.dir/src/main.c.o: CMakeFiles/web.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/web.dir/src/main.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/web.dir/src/main.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/main.c.o -MF CMakeFiles/web.dir/src/main.c.o.d -o CMakeFiles/web.dir/src/main.c.o -c /home/yang/HTTPServer/src/main.c
 
 CMakeFiles/web.dir/src/main.c.i: cmake_force
@@ -128,7 +142,7 @@ CMakeFiles/web.dir/src/main.c.s: cmake_force
 CMakeFiles/web.dir/src/server.c.o: CMakeFiles/web.dir/flags.make
 CMakeFiles/web.dir/src/server.c.o: /home/yang/HTTPServer/src/server.c
 CMakeFiles/web.dir/src/server.c.o: CMakeFiles/web.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/web.dir/src/server.c.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/web.dir/src/server.c.o"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/server.c.o -MF CMakeFiles/web.dir/src/server.c.o.d -o CMakeFiles/web.dir/src/server.c.o -c /home/yang/HTTPServer/src/server.c
 
 CMakeFiles/web.dir/src/server.c.i: cmake_force
@@ -139,25 +153,43 @@ CMakeFiles/web.dir/src/server.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/web.dir/src/server.c.s"
 	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/yang/HTTPServer/src/server.c -o CMakeFiles/web.dir/src/server.c.s
 
+CMakeFiles/web.dir/src/threadpool.c.o: CMakeFiles/web.dir/flags.make
+CMakeFiles/web.dir/src/threadpool.c.o: /home/yang/HTTPServer/src/threadpool.c
+CMakeFiles/web.dir/src/threadpool.c.o: CMakeFiles/web.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/web.dir/src/threadpool.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/web.dir/src/threadpool.c.o -MF CMakeFiles/web.dir/src/threadpool.c.o.d -o CMakeFiles/web.dir/src/threadpool.c.o -c /home/yang/HTTPServer/src/threadpool.c
+
+CMakeFiles/web.dir/src/threadpool.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/web.dir/src/threadpool.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/yang/HTTPServer/src/threadpool.c > CMakeFiles/web.dir/src/threadpool.c.i
+
+CMakeFiles/web.dir/src/threadpool.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/web.dir/src/threadpool.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/yang/HTTPServer/src/threadpool.c -o CMakeFiles/web.dir/src/threadpool.c.s
+
 # Object files for target web
 web_OBJECTS = \
+"CMakeFiles/web.dir/src/auth_db.c.o" \
 "CMakeFiles/web.dir/src/config.c.o" \
 "CMakeFiles/web.dir/src/file.c.o" \
 "CMakeFiles/web.dir/src/http.c.o" \
 "CMakeFiles/web.dir/src/main.c.o" \
-"CMakeFiles/web.dir/src/server.c.o"
+"CMakeFiles/web.dir/src/server.c.o" \
+"CMakeFiles/web.dir/src/threadpool.c.o"
 
 # External object files for target web
 web_EXTERNAL_OBJECTS =
 
+web: CMakeFiles/web.dir/src/auth_db.c.o
 web: CMakeFiles/web.dir/src/config.c.o
 web: CMakeFiles/web.dir/src/file.c.o
 web: CMakeFiles/web.dir/src/http.c.o
 web: CMakeFiles/web.dir/src/main.c.o
 web: CMakeFiles/web.dir/src/server.c.o
+web: CMakeFiles/web.dir/src/threadpool.c.o
 web: CMakeFiles/web.dir/build.make
 web: CMakeFiles/web.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable web"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/yang/HTTPServer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable web"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/web.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

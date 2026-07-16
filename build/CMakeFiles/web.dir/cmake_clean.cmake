@@ -1,4 +1,6 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/web.dir/src/auth_db.c.o"
+  "CMakeFiles/web.dir/src/auth_db.c.o.d"
   "CMakeFiles/web.dir/src/config.c.o"
   "CMakeFiles/web.dir/src/config.c.o.d"
   "CMakeFiles/web.dir/src/file.c.o"
@@ -9,6 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/web.dir/src/main.c.o.d"
   "CMakeFiles/web.dir/src/server.c.o"
   "CMakeFiles/web.dir/src/server.c.o.d"
+  "CMakeFiles/web.dir/src/threadpool.c.o"
+  "CMakeFiles/web.dir/src/threadpool.c.o.d"
   "web"
   "web.pdb"
 )
