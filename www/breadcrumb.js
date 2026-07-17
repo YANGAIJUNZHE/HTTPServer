@@ -20,7 +20,7 @@
         { label: '08. 解析指令并返回',              url: '08-解析指令并返回.html' },
         { label: '09. 存储KV',                      url: '09-存储KV.html' },
         { label: '示例：echo服务器',                url: '示例-echo服务器.html' },
-        { label: '示例：web服务器',                 url: '示例-web服务器.html' }
+        { label: '示例：web服务器',                 url: '示例-web服务器.html' },
       ]
     }]
   };

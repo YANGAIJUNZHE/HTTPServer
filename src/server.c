@@ -29,10 +29,10 @@ enum {
     CS_READ,         // 等待/接收请求
     CS_SENDING,      // 主线程发送中（小文件/HTML响应）
     CS_THREADING,    // 工作线程正在发送大文件
-    CS_DONE,         // 响应完成，等待 keep-alive 或关闭
 };
 
 struct conn {
+    int      in_use;       // 1 = 槽位被占用，0 = 空闲（由 memset 清零）
     int      fd;
     char     rbuf[4096];
     int      rlen;
@@ -71,7 +71,7 @@ static threadpool_t *g_tpool = NULL;
 // keep-alive 超时（毫秒），从配置读取
 static uint64_t g_keep_alive_ms;
 
-// --- 时间轮（不变） ---
+// --- 时间轮 ---
 
 uint64_t timer_now_ms(void) {
     struct timeval tv;
@@ -129,12 +129,17 @@ void timer_tick(void) {
 
                 c->timer = NULL;
                 free(t);
-                // 清理连接：CS_THREADING 状态下不能直接关闭 file_fd
+
+                // in_use 检查：防止操作已被清零的槽位
+                if (!c->in_use) continue;
+
+                // CS_THREADING 状态下不关闭任何 fd —— worker 持有 file_fd，
+                // eventfd handler 是唯一的清理者
                 if (c->state == CS_THREADING) {
                     c->cancelled = 1;
-                    // 等待 eventfd 通知后由主循环清理
                     continue;
                 }
+                // 非线程模式：正常关闭
                 if (c->resp.file_fd >= 0) close(c->resp.file_fd);
                 if (c->notify_fd >= 0) close(c->notify_fd);
                 epoll_ctl(epfd, EPOLL_CTL_DEL, c->fd, NULL);
@@ -150,13 +155,14 @@ void timer_tick(void) {
 // --- 连接关闭 ---
 
 static void conn_close(struct conn *c) {
+    if (!c->in_use) return;
+
     timer_cancel(c);
 
-    // CS_THREADING 状态下，file_fd 由工作线程持有，不能直接 close
-    // 设置 cancelled 标记让工作线程自行退出
+    // CS_THREADING 状态下，不关闭任何 fd —— worker 持有 file_fd，
+    // eventfd handler 是唯一的清理者
     if (c->state == CS_THREADING) {
         c->cancelled = 1;
-        // 不关闭 fd——工作线程写 eventfd 后主线程会收到通知并做最终清理
         return;
     }
 
@@ -183,8 +189,19 @@ static void conn_start_write(struct conn *c) {
         c->notify_fd = eventfd(0, EFD_NONBLOCK);
         c->state = CS_THREADING;
 
-        // 先发响应头（主线程）
+        // 先发响应头（主线程，非阻塞 socket）
         int n = send(c->fd, c->resp.hdr, c->resp.hdr_len, 0);
+        if (n < 0 && errno == EAGAIN) {
+            // socket 写缓冲区暂时满了，切 EPOLLOUT 等待
+            c->state = CS_SENDING;
+            ev.events   = EPOLLOUT | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+            ev.data.ptr = c;
+            epoll_ctl(epfd, EPOLL_CTL_MOD, c->fd, &ev);
+            // 响应头没发完，暂时不投递线程池
+            close(c->notify_fd);
+            c->notify_fd = -1;
+            return;
+        }
         if (n <= 0) {
             conn_close(c);
             return;
@@ -328,15 +345,17 @@ void server_run(void) {
                     inet_ntop(AF_INET, &cli_addr.sin_addr, str, sizeof(str));
                     printf("received from %s at PORT %d\n", str, ntohs(cli_addr.sin_port));
 
+                    // 按 in_use（而非 fd==0）找空闲槽位
                     struct conn *c = NULL;
                     for (int k = 0; k < max_conn; k++) {
-                        if (conns[k].fd == 0) { c = &conns[k]; break; }
+                        if (!conns[k].in_use) { c = &conns[k]; break; }
                     }
                     if (!c) { close(conn_fd); nconn--; continue; }
 
                     memset(c, 0, sizeof(*c));
-                    c->fd    = conn_fd;
-                    c->state = CS_READ;
+                    c->in_use = 1;
+                    c->fd     = conn_fd;
+                    c->state  = CS_READ;
                     timer_add(c, g_keep_alive_ms);
                     ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
                     ev.data.ptr = c;
@@ -347,14 +366,17 @@ void server_run(void) {
 
             struct conn *c = (struct conn *)events[i].data.ptr;
 
+            // 防御：跳过已被清零的槽位（epoll 可能有残留事件）
+            if (!c->in_use) continue;
+
             // ---- 线程完成通知（eventfd）先于异常检测 ----
             if (c->state == CS_THREADING && c->notify_fd >= 0 &&
                 (events[i].events & EPOLLIN)) {
-                // 读掉 eventfd 的值
                 uint64_t val;
                 read(c->notify_fd, &val, sizeof(val));
+                int status = (int)val;
 
-                // 工作线程完成了，清理
+                // 只有这里负责关闭 CS_THREADING 状态下的 file_fd 和 socket
                 if (c->resp.file_fd >= 0) {
                     close(c->resp.file_fd);
                     c->resp.file_fd = -1;
@@ -363,13 +385,21 @@ void server_run(void) {
                 close(c->notify_fd);
                 c->notify_fd = -1;
 
-                // 重新注册客户端 fd 到 epoll，切回读模式
-                c->state = CS_READ;
-                c->rlen  = 0;
-                timer_add(c, g_keep_alive_ms);
-                ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
-                ev.data.ptr = c;
-                epoll_ctl(epfd, EPOLL_CTL_ADD, c->fd, &ev);
+                if (status == SEND_SUCCESS) {
+                    // 发送成功，切回读模式（keep-alive）
+                    c->state = CS_READ;
+                    c->rlen  = 0;
+                    timer_add(c, g_keep_alive_ms);
+                    ev.events   = EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP;
+                    ev.data.ptr = c;
+                    epoll_ctl(epfd, EPOLL_CTL_ADD, c->fd, &ev);
+                } else {
+                    // SEND_FAILED 或 SEND_CANCELLED → 关闭连接
+                    epoll_ctl(epfd, EPOLL_CTL_DEL, c->fd, NULL);
+                    close(c->fd);
+                    memset(c, 0, sizeof(struct conn));
+                    nconn--;
+                }
                 continue;
             }
 
