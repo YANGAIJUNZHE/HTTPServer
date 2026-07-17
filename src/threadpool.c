@@ -55,30 +55,60 @@ static void *worker_loop(void *arg) {
 
         file_task_t *t = &t_copy;
 
-        // 临时设 socket 为阻塞模式，ssendfile实现更简单
+        int status = SEND_SUCCESS;  // 默认成功
+
+        // 临时设 socket 为阻塞模式，sendfile 实现更简单
         int old_flags = fcntl(t->conn_fd, F_GETFL, 0);
         fcntl(t->conn_fd, F_SETFL, old_flags & ~O_NONBLOCK);
 
-        // 分块 sendfile，直到发完或被取消
+        // 分块发送，直到发完或被取消
         off_t off = t->offset;
         size_t rem = t->remain;
+        char *fallback_buf = NULL;
+
         while (rem > 0 && !*(t->cancelled_ptr)) {
             size_t chunk = rem < CHUNK_SIZE ? rem : CHUNK_SIZE;
             ssize_t n = sendfile(t->conn_fd, t->file_fd, &off, chunk);
+
+            if (n == -1 && (errno == ESPIPE || errno == EINVAL)) {
+                // WSL2 9p 等文件系统不支持 sendfile，回退 lseek+read+write
+                if (!fallback_buf) {
+                    fallback_buf = malloc(CHUNK_SIZE);
+                }
+                if (!fallback_buf) { status = SEND_FAILED; break; }
+                if (lseek(t->file_fd, off, SEEK_SET) == (off_t)-1) {
+                    status = SEND_FAILED; break;
+                }
+                ssize_t rn = read(t->file_fd, fallback_buf, chunk);
+                if (rn <= 0) {
+                    status = SEND_FAILED; break;
+                }
+                ssize_t wn = write(t->conn_fd, fallback_buf, (size_t)rn);
+                if (wn <= 0) {
+                    status = SEND_FAILED; break;
+                }
+                off += wn;
+                rem -= (size_t)wn;
+                continue;
+            }
+
             if (n <= 0) {
-                fprintf(stderr, "[TPOOL] sendfile error: n=%zd errno=%d\n", n, errno);
+                status = SEND_FAILED;
                 break;
             }
             rem -= (size_t)n;
         }
-        t->offset = off;
-        t->remain = rem;
+        free(fallback_buf);
+
+        if (*(t->cancelled_ptr)) {
+            status = SEND_CANCELLED;
+        }
 
         // 恢复非阻塞
         fcntl(t->conn_fd, F_SETFL, old_flags);
 
-        // 通过 eventfd 通知主线程（写 1）
-        uint64_t val = 1;
+        // 通过 eventfd 传递 status（写入 status 值而不是 1）
+        uint64_t val = (uint64_t)status;
         write(t->notify_fd, &val, sizeof(val));
     }
     return NULL;

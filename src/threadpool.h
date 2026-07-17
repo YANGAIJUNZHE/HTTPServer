@@ -6,6 +6,11 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+// 文件发送任务状态（通过 eventfd 传给主线程）
+#define SEND_SUCCESS  1   // 发送完成
+#define SEND_FAILED   2   // 发送失败（sendfile 出错）
+#define SEND_CANCELLED 3  // 被 timer 取消
+
 // 文件发送任务
 typedef struct file_task {
     int             conn_fd;       // 客户端 fd（工作线程用）

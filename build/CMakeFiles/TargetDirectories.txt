@@ -1,3 +1,0 @@
-/home/lld/code_train/build/CMakeFiles/web.dir
-/home/lld/code_train/build/CMakeFiles/edit_cache.dir
-/home/lld/code_train/build/CMakeFiles/rebuild_cache.dir
